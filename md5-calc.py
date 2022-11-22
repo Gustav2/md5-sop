@@ -50,36 +50,67 @@ D – 76543210
 from math import sin
 
 
-def f(b, c, d):
-    b = int(b, 16)
-    c = int(c, 16)
-    d = int(d, 16)
-    return hex((b & c) | (~b & d))[2:]
+class MD5:
+
+    def __init__(self, message="Gustavs MD5 SOP"):
+        self.message = message
+        self.a = int("01234567", 16)
+        self.b = int("89abcdef", 16)
+        self.c = int("fedcba98", 16)
+        self.d = int("76543210", 16)
+        self.bin_message = self.message_padding()
+        self.message_array = self.message_array()
+
+    def message_padding(self):
+        bin_message = ''.join(format(ord(i), 'b').zfill(8) for i in self.message)
+        bin_message += "10000000"
+        bin_message += "0" * (448 - len(bin_message))
+        bin_message += format(len(self.message) * 8, 'b').zfill(64)
+
+        assert len(bin_message) == 512
+
+        return bin_message
+
+    def message_array(self):
+        bin_msg = [self.bin_message[i:i+32] for i in range(0, 512, 32)]
+        return [hex(int(i, 2))[2:].zfill(8) for i in bin_msg]
 
 
-def moda(x, y, z="100000000"):
-    x = int(x, 16)
-    y = int(y, 16)
-    z = int(z, 16)
-    return hex((x + y) % z)[2:]
+    def f(self):
+        return hex((self.b & self.c) | (~self.b & self.d))[2:]
+
+    def moda(self, x, y, z="100000000"):
+        x = int(x, 16)
+        y = int(y, 16)
+        z = int(z, 16)
+        return hex((x + y) % z)[2:]
+
+    def constant(self, i):
+        return hex(int(abs(sin(i + 1)) * 2 ** 32))[2:]
+
+    def bitshift(self, n):
+        temp = int(n, 16)
+        return hex(temp << 7 | temp >> 25)[4:]
 
 
-def constant(i):
-    return hex(int(abs(sin(i + 1)) * 2 ** 32))[2:]
 
 
-def bitshift(n):
-    temp = int(n, 16)
-    return hex(temp << 7 | temp >> 25)[4:]
 
 
-print(f("89abcdef", "fedcba98", "76543210"))
+"""
+print(MD5().f())
 
-print(moda("01234567", "fedcba98"))
-print(moda("54686579", "ffffffff"))
+print(MD5().moda("01234567", "fedcba98"))
+print(MD5().moda("54686579", "ffffffff"))
 
-print(moda(constant(0), "54686578"))
+print(MD5().moda(MD5().constant(0), "54686578"))
 
-print(bitshift("2bd309f0"))
+print(MD5().bitshift("2bd309f0"))
 
-print(moda("e984f815", "89abcdef"))
+print(MD5().moda("e984f815", "89abcdef"))
+
+
+print(MD5().message_array)
+
+"""
+
