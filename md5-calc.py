@@ -54,24 +54,32 @@ def f(b, c, d):
     b = int(b, 16)
     c = int(c, 16)
     d = int(d, 16)
-    return hex((b & c) | (~b & d))
+    return hex((b & c) | (~b & d))[2:]
 
-print(f("89abcdef", "fedcba98", "76543210"))
 
-def moda(x, y, z = "100000000"):
+def moda(x, y, z="100000000"):
     x = int(x, 16)
     y = int(y, 16)
     z = int(z, 16)
-    return hex((x + y) % z) 
+    return hex((x + y) % z)[2:]
+
 
 def constant(i):
-    return hex(int(abs(sin(i + 1)) * 2**32)) 
+    return hex(int(abs(sin(i + 1)) * 2 ** 32))[2:]
 
+
+def bitshift(n):
+    temp = int(n, 16)
+    return hex(temp << 7 | temp >> 25)[4:]
+
+
+print(f("89abcdef", "fedcba98", "76543210"))
+
+print(moda("01234567", "fedcba98"))
 print(moda("54686579", "ffffffff"))
 
 print(moda(constant(0), "54686578"))
 
-def bitshift(n):
+print(bitshift("2bd309f0"))
 
-
-print(bin())
+print(moda("e984f815", "89abcdef"))
