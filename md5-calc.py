@@ -47,7 +47,7 @@ D – 76543210
 
 """
 
-from math import sin
+from math import sin, floor
 
 
 def bitwise_not(n):
@@ -68,7 +68,7 @@ class MD5:
         self.shift_amount = [7, 12, 17, 22] * 4 + [5, 9, 14, 20] * 4 + [4, 11, 16, 23] * 4 + [6, 10, 15, 21] * 4
 
     def message_padding(self):
-        bin_message = ''.join(format(ord(i), 'b').zfill(8) for i in self.message)
+        bin_message = ''.join([format(ord(i), 'b').zfill(8) for i in self.message])
         bin_message += "10000000"
         bin_message += "0" * (448 - len(bin_message))
         bin_message += format(len(self.message) * 8, 'b').zfill(64)
@@ -79,10 +79,9 @@ class MD5:
 
     def create_message_array(self):
         bin_msg = [self.bin_message[i:i + 32] for i in range(0, 512, 32)]
-        return [str(hex(int(i, 2))[2:]).zfill(8) for i in bin_msg]
+        return [hex(int(i, 2))[2:].zfill(8) for i in bin_msg]
 
     def f(self):
-
         return hex((int(self.b, 16) & int(self.c, 16)) | (bitwise_not(int(self.b, 16)) & int(self.d, 16)))[2:].zfill(8)
 
     def g(self):
@@ -92,8 +91,7 @@ class MD5:
         return hex(int(self.b, 16) ^ int(self.c, 16) ^ int(self.d, 16))[2:].zfill(8)
 
     def i(self):
-
-        return hex(int(self.c, 16) ^ (int(self.b, 16) | bitwise_not(int(self.d, 16))))[2:].zfill(8)  # BD45C274
+        return hex(int(self.c, 16) ^ (int(self.b, 16) | bitwise_not(int(self.d, 16))))[2:].zfill(8)
 
     def mod_add(self, x, y):
         x = int(x, 16)
@@ -103,13 +101,15 @@ class MD5:
         return hex((x + y) % z)[2:].zfill(8)
 
     def constant(self, i):
-        return hex(int(abs(sin(i + 1)) * 2 ** 32))[2:].zfill(8)
+        return hex(floor(abs(sin(i + 1)) * pow(2, 32)))[2:].zfill(8)
 
     def bitshift(self, n, i):
         temp = int(n, 16)
 
         temp = ((temp << self.shift_amount[i]) & 0xFFFFFFFF) | (temp >> (32 - self.shift_amount[i]))
         return hex(temp)[2:].zfill(8)
+
+
 
     def round1(self):
         for i in range(16):
@@ -147,7 +147,9 @@ class MD5:
             self.a = self.mod_add(self.a, self.constant(i))
             self.a = self.bitshift(self.a, i)
             self.a = self.mod_add(self.a, self.b)
+
             self.a, self.b, self.c, self.d = self.d, self.a, self.b, self.c
+
 
     def md5(self):
         self.round1()
