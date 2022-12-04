@@ -10,7 +10,7 @@ try:  # Prøver at oprette forbindelse til databasen og laver to tabeller
     c = conn.cursor()
     print("Created and connected to database")
 
-    # laver en tabel med brugernavn, password og salt hvis den ikke findes. Skrevet i SQL.
+    # Laver en tabel med brugernavn, password og salt hvis den ikke findes. Skrevet i SQL.
     t = 'CREATE TABLE IF NOT EXISTS saltedCredentials (username VARCHAR (32), password VARCHAR (32), salt VARCHAR (32), userID INTEGER PRIMARY KEY ' \
         'AUTOINCREMENT) '
 
@@ -35,7 +35,11 @@ except Exception as e:  # Hvis der er en fejl, så printes den
     print(e)
 
 
-def create_user_salted(username, password, salt):
+def create_user_salted(username, password):
+    # Genererer et tilfældigt salt
+    letters = string.ascii_letters  # Laver en string med alle bogstaver i alfabetet
+    salt = "".join(random.choice(letters) for i in range(16))  # Laver en string med 16 tilfældige bogstaver fra "letters"
+
     # Lægger saltet til passwordet og laver det om til bytes så det kan hashes
     hashed_password = hashlib.md5((password + salt).encode()).hexdigest()
 
@@ -141,11 +145,7 @@ def main():
     elif choice == "2":
         username, password = fetch_user_creds()
 
-        # Genererer et tilfældigt salt
-        letters = string.ascii_letters  # Laver en string med alle bogstaver i alfabetet
-        salt = "".join(random.choice(letters) for _ in range(16))  # Laver en string med 16 tilfældige bogstaver fra "letters"
-
-        create_user_salted(username, password, salt)
+        create_user_salted(username, password)
 
     elif choice == "3":
         username, password = fetch_user_creds()
